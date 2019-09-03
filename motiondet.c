@@ -77,7 +77,7 @@ int motiondet_data(void *ctxt, uint8_t *data, uint32_t td)
                 diff    = grid_diff(dstgrid, gw, srcgrid, context->imgw, gw, gh);
                 if (td < 500 && diff > context->sensitivity) {
                     context->result[i] |=  (1 << j);
-                    det |= 1;
+                    det++;
                 } else {
                     context->result[i] &= ~(1 << j);
                 }
