@@ -5,7 +5,7 @@
 
 void *motiondet_init(uint16_t *grids, int w, int h, int sensitivity);
 void  motiondet_exit(void *ctxt);
-int   motiondet_data(void *ctxt, uint8_t *data, uint32_t diff);
+int   motiondet_data(void *ctxt, uint8_t *data, uint32_t td); // td - time diff in ms between current frame and last frame
 void  motiondet_sensitivity(void *ctxt, int sensitivity);
 
 #endif

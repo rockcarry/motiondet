@@ -3,7 +3,8 @@
 #include "motiondet.h"
 
 typedef struct {
-    uint16_t grids[10]; // 16x10 bitmap
+    uint16_t grids [10]; // 16x10 grids bitmap, to indicate which grids need be detected
+    uint16_t result[10]; // 16x10 grids bitmap result
     int      imgw;
     int      imgh;
     uint8_t *buffer;
@@ -57,10 +58,10 @@ void motiondet_exit(void *ctxt)
     }
 }
 
-int motiondet_data(void *ctxt, uint8_t *data, uint32_t diff)
+int motiondet_data(void *ctxt, uint8_t *data, uint32_t td)
 {
     uint8_t *dstgrid, *srcgrid;
-    int      det, dff, i, j, gw, gh;
+    int      det, diff, i, j, gw, gh;
 
     CONTEXT *context = (CONTEXT*)ctxt;
     if (!context || !context->buffer) return 0;
@@ -73,9 +74,16 @@ int motiondet_data(void *ctxt, uint8_t *data, uint32_t diff)
         for (j=0; j<16; j++) {
             if (context->grids[i] & (1 << j)) {
                 srcgrid = data + j * gw + i * gh * context->imgw;
-                dff     = grid_diff(dstgrid, gw, srcgrid, context->imgw, gw, gh);
-                det     = diff < 500 ? dff > context->sensitivity : 0;
+                diff    = grid_diff(dstgrid, gw, srcgrid, context->imgw, gw, gh);
+                if (td < 500 && diff > context->sensitivity) {
+                    context->result[i] |=  (1 << j);
+                    det |= 1;
+                } else {
+                    context->result[i] &= ~(1 << j);
+                }
                 dstgrid+= gw * gh;
+            } else {
+                context->result[i] &= ~(1 << j);
             }
         }
     }
